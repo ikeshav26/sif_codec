@@ -1,0 +1,25 @@
+# Rust build artifacts
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# Node.js & Apps
+node_modules/
+.next/
+dist/
+build/
+.expo/
+
+# Environment & Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Local SIF Storage
+storage/sif/*
+!storage/sif/.gitkeep
+
+# Operating System files
+.DS_Store
+Thumbs.db
