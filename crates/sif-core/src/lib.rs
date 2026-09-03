@@ -1,8 +1,13 @@
+pub mod container;
+pub mod crypto;
 pub mod error;
+pub mod footer;
 pub mod format;
 pub mod header;
 
+pub use container::SifContainer;
 pub use error::{Result, SifError};
+pub use footer::SifFooter;
 pub use format::*;
 pub use header::SifHeader;
 
