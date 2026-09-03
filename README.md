@@ -646,7 +646,18 @@ The permission engine supports fine-grained access policies:
   - Implemented `to_bytes(&self) -> [u8; HEADER_SIZE]` (binary packing with little-endian integer encoding).
   - Implemented `from_bytes(bytes: &[u8]) -> Result<Self>` (strict bounds checking, magic verification, version check, cipher suite check, zero-copy byte extraction).
   - Implemented `TryFrom<&[u8]> for SifHeader`.
-  - Added unit tests for round-trip serialization/deserialization and invalid magic rejection (all tests passing).
+- [x] **SIF Footer Parser & Serializer (`src/footer.rs`)**:
+  - Structured `SifFooter` model (16 B AEAD Auth Tag + 64 B Ed25519 Digital Signature = 80 B total).
+  - Implemented `to_bytes(&self) -> [u8; FOOTER_SIZE]` and `from_bytes(bytes: &[u8]) -> Result<Self>`.
+- [x] **Zero-Copy Container Slicer & Validator (`src/container.rs`)**:
+  - Implemented `SifContainer<'a>` for zero-copy parsing of `.sif` binary buffers into `(SifHeader, &'a [u8] payload, SifFooter)`.
+  - Implemented strict size validation ($\ge 220$ B) and payload length consistency checks.
+  - Implemented `signed_data(&'a [u8]) -> Result<&'a [u8]>` helper for digital signature verification.
+- [x] **Cryptography Subsystem (`src/crypto/`)**:
+  - `aead.rs`: AEAD payload encryption and decryption (`AES-256-GCM` & `ChaCha20-Poly1305`) passing the entire 140-byte SIF Header as Additional Authenticated Data (AAD).
+  - `keywrap.rs`: NIST SP 800-38F AES Key Wrap (`wrap_dek` and `unwrap_dek`) to encrypt 256-bit DEK under 256-bit Server Master KEK.
+  - `signature.rs`: Ed25519 digital signature generation (`sign_data`) and verification (`verify_signature`) over `Header + Ciphertext + Tag`.
+- [x] **17 Unit Tests Passing**: Full test suite covering roundtrips, tampered headers, wrong keys, invalid magic bytes, and corrupted signatures.
 
 ---
 
@@ -656,23 +667,20 @@ The permission engine supports fine-grained access policies:
 ┌────────────────────────────────────────────────────────────────────────┐
 │ NEXT SESSION ROADMAP                                                   │
 ├────────────────────────────────────────────────────────────────────────┤
-│ 1. SIF Footer Implementation (crates/sif-core/src/footer.rs)           │
-│    - Define SifFooter (16 B AEAD Auth Tag + 64 B Ed25519 Signature)   │
-│    - Implement to_bytes() and from_bytes() with boundary validation    │
+│ 1. High-Level SIF Encoder (crates/sif-core/src/encoder.rs)             │
+│    - encode_sif(params, kek, signing_key, plaintext_image) -> Vec<u8>  │
+│    - Automated DEK + Nonce generation, KeyWrap, AEAD, Signature, Pack  │
 │                                                                        │
-│ 2. Container Slicing & Validation (crates/sif-core/src/container.rs)   │
-│    - Parse complete .sif binary into (SifHeader, PayloadSlice, Footer) │
-│    - Verify total length >= 220 bytes & payload length consistency     │
+│ 2. High-Level SIF Decoder (crates/sif-core/src/decoder.rs)             │
+│    - decode_sif(sif_bytes, kek, verifying_key) -> Vec<u8>             │
+│    - Slicing, Signature check, Key Unwrap, AEAD Decrypt to RAM         │
 │                                                                        │
-│ 3. Cryptography Integration (crates/sif-core/src/crypto/)             │
-│    - Add crates: aes-gcm, chacha20poly1305, aes-kw, ed25519-dalek     │
-│    - Implement AEAD Encrypt/Decrypt with Header as AAD                │
-│    - Implement NIST SP 800-38F DEK Key Wrapping (KEK)                 │
-│    - Implement Ed25519 digital signature seal & verification           │
+│ 3. Integration & End-to-End Test Suite                                │
+│    - Full test suite: raw image -> encode_sif -> decode_sif -> verify  │
 │                                                                        │
-│ 4. High-Level Pipeline (encoder.rs & decoder.rs)                       │
-│    - Raw Image bytes -> sealed .sif binary container                  │
-│    - Sealed .sif binary container + KEK -> decrypted image in RAM      │
+│ 4. Node.js / Express Bridge (napi-rs / Node-API bindings)              │
+│    - Expose Rust encode/decode functions as a native Node module       │
+│    - Call Rust SIF engine directly from Express TypeScript backend     │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
