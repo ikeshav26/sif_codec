@@ -25,9 +25,3 @@ storage/sif/*
 # Operating System files
 .DS_Store
 Thumbs.db
-
-# Database data
-data/
-
-# Generated files
-generated
