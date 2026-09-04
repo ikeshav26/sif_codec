@@ -1,11 +1,15 @@
 pub mod container;
 pub mod crypto;
+pub mod decoder;
+pub mod encoder;
 pub mod error;
 pub mod footer;
 pub mod format;
 pub mod header;
 
 pub use container::SifContainer;
+pub use decoder::{DecodedImage, decode};
+pub use encoder::{EncodeOptions, encode};
 pub use error::{Result, SifError};
 pub use footer::SifFooter;
 pub use format::*;

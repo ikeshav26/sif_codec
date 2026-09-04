@@ -1,5 +1,6 @@
 [workspace]
+resolver = "2"
 members = [
   "crates/sif-core",
+  "crates/sif-node",
 ]
-resolver = "2"

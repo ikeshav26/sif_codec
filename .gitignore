@@ -3,12 +3,14 @@
 **/*.rs.bk
 Cargo.lock
 
-# Node.js & Apps
+# Node.js & NAPI Native Binaries
 node_modules/
+*.node
 .next/
 dist/
 build/
 .expo/
+pnpm-debug.log*
 
 # Environment & Secrets
 .env

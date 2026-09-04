@@ -1,0 +1,17 @@
+[package]
+name = "sif-node"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ed25519-dalek = { version = "2.1.1", default-features = false }
+hex = "0.4.3"
+napi = { version = "2.16.12", default-features = false, features = ["async", "error_anyhow", "napi4"] }
+napi-derive = "2.16.12"
+sif-core = { path = "../sif-core" }
+
+[build-dependencies]
+napi-build = "2.1.3"
