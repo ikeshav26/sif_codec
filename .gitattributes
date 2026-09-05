@@ -1,0 +1,20 @@
+# GitHub Linguist Overrides
+# Hide frontend, backend, and chat-app from language stats so repo is recognized as Rust
+
+app/** linguist-vendored
+backend/** linguist-vendored
+chat-app/** linguist-vendored
+
+*.tsx linguist-detectable=false
+*.ts linguist-detectable=false
+*.js linguist-detectable=false
+*.jsx linguist-detectable=false
+*.mjs linguist-detectable=false
+*.css linguist-detectable=false
+*.html linguist-detectable=false
+*.json linguist-detectable=false
+*.svg linguist-detectable=false
+*.sql linguist-detectable=false
+
+# Ensure Rust is prioritized
+crates/**/*.rs linguist-detectable=true
