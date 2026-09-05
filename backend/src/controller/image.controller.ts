@@ -27,7 +27,7 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
             return res.status(400).json({ message: "No image file provided" });
         }
 
-        // Check if the uploaded file is an existing .sif container
+
         const isSifFile =
             file.originalname.toLowerCase().endsWith(".sif") ||
             (file.buffer.length >= 4 &&
@@ -50,7 +50,6 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
             const currentOwnerHash = getOwnerIdHash(userId);
             const isOwner = header.ownerIdHashHex.toLowerCase() === currentOwnerHash.toLowerCase();
 
-            // Ownership Conflict: Container belongs to a different owner!
             if (!isOwner) {
                 const existingRecord = await prisma.image.findFirst({
                     where: {
@@ -77,7 +76,7 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
                     return `${userPart[0]}***${userPart[userPart.length - 1]}@${domainPart}`;
                 };
 
-                // Dispatch security alert email to original creator asynchronously
+
                 if (existingRecord?.user?.email) {
                     sendOwnershipAlertEmail({
                         toEmail: existingRecord.user.email,
@@ -103,7 +102,6 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
                 });
             }
 
-            // Valid owner re-uploading / registering existing SIF container
             const decoded = await decodeSifImage(file.buffer);
             const imageUuid = header.imageUuidHex;
             const originalFileName = `${imageUuid}.png`;
@@ -142,7 +140,7 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
             });
         }
 
-        // Standard image file (PNG, JPG, WebP, etc.) -> Encode to SIF
+
         const imageUuid = crypto.randomUUID().replace(/-/g, "");
         const fileExt = path.extname(file.originalname) || ".png";
 
