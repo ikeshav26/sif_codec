@@ -2,10 +2,10 @@
   "name": "sif-codec-monorepo",
   "private": true,
   "scripts": {
-    "dev": "concurrently -n \"backend,studio,chat\" -c \"blue.bold,green.bold,magenta.bold\" \"pnpm --filter backend dev\" \"pnpm --filter app dev\" \"pnpm --filter chat-app dev -- -p 3001\"",
+    "dev": "concurrently -n \"backend,studio,chat\" -c \"blue.bold,green.bold,magenta.bold\" \"pnpm --filter backend dev\" \"pnpm --filter app dev\" \"pnpm --filter chat-app dev\"",
     "dev:backend": "pnpm --filter backend dev",
     "dev:studio": "pnpm --filter app dev",
-    "dev:chat": "pnpm --filter chat-app dev -- -p 3001"
+    "dev:chat": "pnpm --filter chat-app dev"
   },
   "devDependencies": {
     "concurrently": "^9.2.4"

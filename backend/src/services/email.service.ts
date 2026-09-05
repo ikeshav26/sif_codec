@@ -1,8 +1,12 @@
+import "dotenv/config";
 import { Resend } from "resend";
 
-const resendApiKey = process.env.RESEND_API_KEY;
-const resend = resendApiKey ? new Resend(resendApiKey) : null;
-const fromEmail = process.env.RESEND_FROM_EMAIL || "SIF Security <onboarding@resend.dev>";
+function getResendClient(): { resend: Resend | null; fromEmail: string } {
+  const apiKey = process.env.RESEND_API_KEY;
+  const resend = apiKey ? new Resend(apiKey) : null;
+  const fromEmail = process.env.RESEND_FROM_EMAIL || "SIF Security <security@ikeshav.in>";
+  return { resend, fromEmail };
+}
 
 export interface OwnershipAlertParams {
   toEmail: string;
@@ -94,6 +98,8 @@ export async function sendOwnershipAlertEmail(params: OwnershipAlertParams): Pro
     </html>
   `;
 
+  const { resend, fromEmail } = getResendClient();
+
   if (!resend) {
     console.log(`\n================== [SIF EMAIL ALERT SIMULATION] ==================`);
     console.log(`To: ${toEmail} (${ownerName})`);
@@ -114,14 +120,19 @@ export async function sendOwnershipAlertEmail(params: OwnershipAlertParams): Pro
     });
 
     if (error) {
-      console.error("[Resend Error] Failed to send email alert:", error);
+      console.error("\n[Resend Error] Failed to send email alert to", toEmail, ":", error);
+      if (error.name === "validation_error" || (error as any).message?.includes("testing emails")) {
+        console.warn(
+          "[Resend Notice] With Resend's free onboarding@resend.dev domain, emails can only be delivered to your registered Resend account email. To deliver to arbitrary recipients, verify a custom domain at resend.com/domains."
+        );
+      }
       return false;
     }
 
-    console.log(`[Resend Success] Ownership alert email sent to ${toEmail} (Message ID: ${data?.id})`);
+    console.log(`\n[Resend Success] Ownership alert email sent to ${toEmail} (Message ID: ${data?.id})\n`);
     return true;
   } catch (err: any) {
-    console.error("[Resend Exception] Error sending email:", err.message);
+    console.error("[Resend Exception] Error sending email:", err?.message || err);
     return false;
   }
 }

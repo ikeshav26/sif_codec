@@ -34,7 +34,7 @@ export const uploadAndEncodeImage = async (req: AuthRequest, res: Response) => {
                 file.buffer[0] === 0x53 &&
                 file.buffer[1] === 0x49 &&
                 file.buffer[2] === 0x46 &&
-                file.buffer[3] === 0x31);
+                (file.buffer[3] === 0x01 || file.buffer[3] === 0x31));
 
         if (isSifFile) {
             let header;

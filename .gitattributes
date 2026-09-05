@@ -7,12 +7,10 @@ chat-app/** linguist-vendored
 
 *.tsx linguist-detectable=false
 *.ts linguist-detectable=false
-*.js linguist-detectable=false
 *.jsx linguist-detectable=false
 *.mjs linguist-detectable=false
 *.css linguist-detectable=false
 *.html linguist-detectable=false
-*.json linguist-detectable=false
 *.svg linguist-detectable=false
 *.sql linguist-detectable=false
 

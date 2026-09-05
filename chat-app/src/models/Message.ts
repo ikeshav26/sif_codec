@@ -1,5 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
+export type SifVerificationStatus = "VERIFIED" | "PENDING_APPROVAL" | "REJECTED";
+
 export interface ISifData {
   fileName: string;
   imageUuid: string;
@@ -8,6 +10,10 @@ export interface ISifData {
   payloadLength: number;
   sifVerified: boolean;
   sifBase64?: string;
+  verificationStatus?: SifVerificationStatus;
+  verificationToken?: string;
+  ownerEmail?: string;
+  approvedAt?: Date;
 }
 
 export interface IMessage extends Document {
@@ -28,6 +34,14 @@ const SifDataSchema = new Schema<ISifData>(
     payloadLength: { type: Number, default: 0 },
     sifVerified: { type: Boolean, default: false },
     sifBase64: { type: String },
+    verificationStatus: {
+      type: String,
+      enum: ["VERIFIED", "PENDING_APPROVAL", "REJECTED"],
+      default: "VERIFIED",
+    },
+    verificationToken: { type: String, index: true },
+    ownerEmail: { type: String },
+    approvedAt: { type: Date },
   },
   { _id: false }
 );

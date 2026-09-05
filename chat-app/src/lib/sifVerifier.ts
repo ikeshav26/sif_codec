@@ -1,6 +1,7 @@
 import crypto from "crypto";
 
-const SIF_MAGIC = Buffer.from([0x53, 0x49, 0x46, 0x31]); // "SIF1"
+const SIF_MAGIC_BINARY = Buffer.from([0x53, 0x49, 0x46, 0x01]); // "SIF\x01" (canonical SIF format)
+const SIF_MAGIC_ASCII = Buffer.from([0x53, 0x49, 0x46, 0x31]); // "SIF1"
 const HEADER_SIZE = 140;
 
 export interface SifVerificationResult {
@@ -42,13 +43,17 @@ export function verifySifContainerZeroDb(
     };
   }
 
-  // 1. Verify Magic Bytes
-  if (!sifBuffer.subarray(0, 4).equals(SIF_MAGIC)) {
+  // 1. Verify Magic Bytes (Supports standard SIF\x01 or ASCII SIF1)
+  const magicSlice = sifBuffer.subarray(0, 4);
+  const isValidMagic =
+    magicSlice.equals(SIF_MAGIC_BINARY) || magicSlice.equals(SIF_MAGIC_ASCII);
+
+  if (!isValidMagic) {
     return {
       isValidContainer: false,
       isOwner: false,
       computedSenderHash,
-      error: "Invalid SIF container: Magic bytes mismatch (expected 'SIF1')",
+      error: "Invalid SIF container: Magic bytes mismatch (expected 'SIF\\x01' or 'SIF1')",
     };
   }
 
@@ -78,12 +83,13 @@ export function verifySifContainerZeroDb(
       },
       computedSenderHash,
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Failed to parse SIF container header";
     return {
       isValidContainer: false,
       isOwner: false,
       computedSenderHash,
-      error: err.message || "Failed to parse SIF container header",
+      error: message,
     };
   }
 }

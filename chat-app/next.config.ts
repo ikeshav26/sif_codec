@@ -1,7 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  serverExternalPackages: ["@sif/node"],
+  turbopack: {},
+  webpack: (config) => {
+    config.externals = [...(config.externals || []), "@sif/node"];
+    return config;
+  },
 };
 
 export default nextConfig;
