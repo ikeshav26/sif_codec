@@ -11,3 +11,37 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id         String   @id @default(uuid())
+  name       String
+  email      String   @unique
+  providerId String   @unique
+  avatarUrl  String?
+  createdAt  DateTime @default(now())
+
+  images Image[]
+}
+
+model Image {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  originalName String
+  mimeType     String
+  originalSize Int
+  originalPath String
+
+  sifPath     String
+  sifSize     Int
+  imageUuid   String
+  ownerIdHash String
+  kekId       String
+  cipherSuite Int    @default(1)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
