@@ -27,7 +27,7 @@ export async function GET(req: NextRequest) {
           "sifData.approvedAt": isReject ? undefined : new Date(),
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     );
 
     if (!updatedMessage || !updatedMessage.sifData) {

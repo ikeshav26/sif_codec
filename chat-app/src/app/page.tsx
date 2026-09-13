@@ -69,6 +69,7 @@ export default function ChatPage() {
   const [previewImage, setPreviewImage] = useState<{
     url: string;
     fileName: string;
+    messageId: string;
     sifData: SifData;
   } | null>(null);
 
@@ -77,11 +78,14 @@ export default function ChatPage() {
       const res = await fetch(
         `/api/messages?viewerEmail=${encodeURIComponent(currentUser.email)}`
       );
+      if (!res.ok) {
+        throw new Error(`Server returned ${res.status}`);
+      }
       const data = await res.json();
-      if (data.messages) {
+      if (data && Array.isArray(data.messages)) {
         setMessages(data.messages);
       }
-    } catch (err) {
+    } catch (err: unknown) {
       console.error("Failed to fetch messages:", err);
     } finally {
       setLoading(false);
@@ -149,24 +153,13 @@ export default function ChatPage() {
     }
   };
 
-  const handleDownloadSif = (sif: SifData) => {
-    if (!sif.sifBase64) return;
-    const byteCharacters = atob(sif.sifBase64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: "application/octet-stream" });
-
-    const url = URL.createObjectURL(blob);
+  const handleDownloadSif = (messageId: string, fileName?: string) => {
     const a = document.createElement("a");
-    a.href = url;
-    a.download = sif.fileName || `${sif.imageUuid}.sif`;
+    a.href = `/api/messages/${messageId}/raw`;
+    a.download = fileName || "container.sif";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   };
 
   return (
@@ -354,6 +347,7 @@ export default function ChatPage() {
                                 setPreviewImage({
                                   url: `/api/messages/${msg._id}/image`,
                                   fileName: msg.sifData?.fileName || "Decrypted Image",
+                                  messageId: msg._id,
                                   sifData: msg.sifData!,
                                 })
                               }
@@ -410,7 +404,7 @@ export default function ChatPage() {
                               msg.sifData.verificationStatus === "PENDING_APPROVAL" ||
                               msg.sifData.verificationStatus === "REJECTED"
                             }
-                            onClick={() => handleDownloadSif(msg.sifData!)}
+                            onClick={() => handleDownloadSif(msg._id, msg.sifData?.fileName)}
                             className={`flex-1 inline-flex items-center justify-center gap-1.5 rounded-md py-1.5 text-[10px] font-mono font-medium border transition-colors ${
                               msg.sifData.verificationStatus === "PENDING_APPROVAL" ||
                               msg.sifData.verificationStatus === "REJECTED"
@@ -653,7 +647,7 @@ export default function ChatPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    handleDownloadSif(previewImage.sifData);
+                    handleDownloadSif(previewImage.messageId, previewImage.fileName);
                   }}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-200 hover:bg-zinc-700 hover:text-white transition-colors cursor-pointer"
                 >

@@ -25,8 +25,10 @@ export async function GET(req: NextRequest) {
     }
 
     const messages = await Message.find({ $or: queryConditions })
+      .select("-sifData.sifBase64")
       .sort({ createdAt: 1 })
-      .limit(100);
+      .limit(100)
+      .lean();
     return NextResponse.json({ messages });
   } catch (err: unknown) {
     const details = err instanceof Error ? err.message : String(err);
